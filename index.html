@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>成绩管理系统</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">G</div>
+          <div>
+            <strong>成绩管理系统</strong>
+            <span>GradeFlow</span>
+          </div>
+        </div>
+        <nav class="nav">
+          <a class="active" href="#dashboard"><i data-lucide="layout-dashboard"></i><span>总览</span></a>
+          <a href="#students"><i data-lucide="table-2"></i><span>学生成绩</span></a>
+          <a href="#charts"><i data-lucide="bar-chart-3"></i><span>统计图表</span></a>
+          <a href="#publish"><i data-lucide="send"></i><span>提交信息</span></a>
+        </nav>
+        <div class="sidebar-note">
+          <span>课程</span>
+          <strong id="courseName">计算机前沿技术</strong>
+        </div>
+      </aside>
+
+      <main>
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">23本计算机科学与技术（创新实验班）1-2班</p>
+            <h1>综合成绩管理与统计</h1>
+          </div>
+          <div class="top-actions">
+            <label class="file-button" title="导入 Excel 成绩表">
+              <i data-lucide="upload"></i>
+              <span>导入</span>
+              <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+            </label>
+            <button id="exportBtn" class="icon-button" title="导出 CSV"><i data-lucide="download"></i></button>
+            <button id="resetBtn" class="icon-button" title="恢复示例数据"><i data-lucide="refresh-cw"></i></button>
+          </div>
+        </header>
+
+        <section id="dashboard" class="metrics-grid">
+          <article class="metric">
+            <span>学生人数</span>
+            <strong id="studentCount">0</strong>
+            <small>已导入记录</small>
+          </article>
+          <article class="metric">
+            <span>平均分</span>
+            <strong id="avgScore">0</strong>
+            <small>综合成绩</small>
+          </article>
+          <article class="metric">
+            <span>最高分</span>
+            <strong id="maxScore">0</strong>
+            <small id="topStudent">-</small>
+          </article>
+          <article class="metric">
+            <span>及格率</span>
+            <strong id="passRate">0%</strong>
+            <small>60 分及以上</small>
+          </article>
+        </section>
+
+        <section class="workspace">
+          <section id="students" class="panel table-panel">
+            <div class="panel-head">
+              <div>
+                <h2>学生成绩</h2>
+                <p>支持检索、排序、编辑、新增和删除。</p>
+              </div>
+              <div class="toolbar">
+                <div class="search">
+                  <i data-lucide="search"></i>
+                  <input id="searchInput" type="search" placeholder="姓名 / 学号 / 班级" />
+                </div>
+                <button id="addBtn" class="primary"><i data-lucide="plus"></i><span>新增</span></button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="name">姓名</th>
+                    <th data-sort="studentId">学号</th>
+                    <th data-sort="className">班级</th>
+                    <th data-sort="attendance">课堂</th>
+                    <th data-sort="homework">作业</th>
+                    <th data-sort="checkin">签到</th>
+                    <th data-sort="activity">互动</th>
+                    <th data-sort="pbl">PBL</th>
+                    <th data-sort="total">综合</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="studentBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside id="charts" class="panel analytics">
+            <div class="panel-head compact">
+              <div>
+                <h2>统计图表</h2>
+                <p>成绩分布与构成均值。</p>
+              </div>
+            </div>
+            <canvas id="distributionChart" width="520" height="260" aria-label="成绩分布图"></canvas>
+            <canvas id="componentChart" width="520" height="260" aria-label="成绩构成图"></canvas>
+          </aside>
+        </section>
+
+        <section id="publish" class="publish-panel">
+          <div>
+            <h2>作业提交信息</h2>
+            <p>将项目上传到 GitHub 并部署到云服务器后，把下面两处替换为真实地址即可。</p>
+          </div>
+          <div class="link-grid">
+            <label>
+              <span>GitHub 仓库链接</span>
+              <input id="githubLink" value="https://github.com/yourname/grade-management-system" />
+            </label>
+            <label>
+              <span>公网访问链接</span>
+              <input id="publicLink" value="http://your-server-ip:8080" />
+            </label>
+          </div>
+          <button id="copySubmitBtn" class="primary"><i data-lucide="copy"></i><span>复制提交文字</span></button>
+          <textarea id="submitText" readonly></textarea>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="studentDialog">
+      <form method="dialog" id="studentForm">
+        <div class="dialog-head">
+          <h2 id="dialogTitle">新增学生</h2>
+          <button class="icon-button" value="cancel" title="关闭"><i data-lucide="x"></i></button>
+        </div>
+        <div class="form-grid">
+          <label><span>姓名</span><input name="name" required /></label>
+          <label><span>学号</span><input name="studentId" required /></label>
+          <label class="wide"><span>班级</span><input name="className" required /></label>
+          <label><span>课堂</span><input name="attendance" type="number" step="0.01" min="0" max="20" required /></label>
+          <label><span>作业</span><input name="homework" type="number" step="0.01" min="0" max="30" required /></label>
+          <label><span>签到</span><input name="checkin" type="number" step="0.01" min="0" max="10" required /></label>
+          <label><span>互动</span><input name="activity" type="number" step="0.01" min="0" max="20" required /></label>
+          <label><span>PBL</span><input name="pbl" type="number" step="0.01" min="0" max="20" required /></label>
+        </div>
+        <menu>
+          <button value="cancel">取消</button>
+          <button id="saveStudentBtn" class="primary" value="default">保存</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script src="./sample-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
