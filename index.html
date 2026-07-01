@@ -10,7 +10,26 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
   <body>
-    <div class="app-shell">
+    <section id="loginScreen" class="login-screen">
+      <form id="loginForm" class="login-card">
+        <div class="login-mark">G</div>
+        <p class="eyebrow">管理员登录</p>
+        <h1>成绩管理系统</h1>
+        <label>
+          <span>账号</span>
+          <input id="username" name="username" autocomplete="username" value="admin" required />
+        </label>
+        <label>
+          <span>密码</span>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" required />
+        </label>
+        <p id="loginError" class="login-error" aria-live="polite"></p>
+        <button class="primary login-submit" type="submit"><i data-lucide="log-in"></i><span>登录</span></button>
+        <small>默认账号：admin，密码：123456</small>
+      </form>
+    </section>
+
+    <div id="appShell" class="app-shell is-locked">
       <aside class="sidebar">
         <div class="brand">
           <div class="brand-mark">G</div>
@@ -23,7 +42,6 @@
           <a class="active" href="#dashboard"><i data-lucide="layout-dashboard"></i><span>总览</span></a>
           <a href="#students"><i data-lucide="table-2"></i><span>学生成绩</span></a>
           <a href="#charts"><i data-lucide="bar-chart-3"></i><span>统计图表</span></a>
-          <a href="#publish"><i data-lucide="send"></i><span>提交信息</span></a>
         </nav>
         <div class="sidebar-note">
           <span>课程</span>
@@ -45,6 +63,7 @@
             </label>
             <button id="exportBtn" class="icon-button" title="导出 CSV"><i data-lucide="download"></i></button>
             <button id="resetBtn" class="icon-button" title="恢复示例数据"><i data-lucide="refresh-cw"></i></button>
+            <button id="logoutBtn" class="icon-button" title="退出登录"><i data-lucide="log-out"></i></button>
           </div>
         </header>
 
@@ -117,25 +136,6 @@
             <canvas id="distributionChart" width="520" height="260" aria-label="成绩分布图"></canvas>
             <canvas id="componentChart" width="520" height="260" aria-label="成绩构成图"></canvas>
           </aside>
-        </section>
-
-        <section id="publish" class="publish-panel">
-          <div>
-            <h2>作业提交信息</h2>
-            <p>将项目上传到 GitHub 并部署到云服务器后，把下面两处替换为真实地址即可。</p>
-          </div>
-          <div class="link-grid">
-            <label>
-              <span>GitHub 仓库链接</span>
-              <input id="githubLink" value="https://github.com/yourname/grade-management-system" />
-            </label>
-            <label>
-              <span>公网访问链接</span>
-              <input id="publicLink" value="http://your-server-ip:8080" />
-            </label>
-          </div>
-          <button id="copySubmitBtn" class="primary"><i data-lucide="copy"></i><span>复制提交文字</span></button>
-          <textarea id="submitText" readonly></textarea>
         </section>
       </main>
     </div>

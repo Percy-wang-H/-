@@ -4,12 +4,20 @@ const state = {
   sortKey: "total",
   sortDirection: "desc",
   editingId: null,
+  isAuthenticated: localStorage.getItem("grade-system-auth") === "true",
 };
 
 const els = {
+  loginScreen: document.querySelector("#loginScreen"),
+  appShell: document.querySelector("#appShell"),
+  loginForm: document.querySelector("#loginForm"),
+  username: document.querySelector("#username"),
+  password: document.querySelector("#password"),
+  loginError: document.querySelector("#loginError"),
   fileInput: document.querySelector("#fileInput"),
   exportBtn: document.querySelector("#exportBtn"),
   resetBtn: document.querySelector("#resetBtn"),
+  logoutBtn: document.querySelector("#logoutBtn"),
   addBtn: document.querySelector("#addBtn"),
   searchInput: document.querySelector("#searchInput"),
   body: document.querySelector("#studentBody"),
@@ -23,10 +31,6 @@ const els = {
   dialog: document.querySelector("#studentDialog"),
   form: document.querySelector("#studentForm"),
   dialogTitle: document.querySelector("#dialogTitle"),
-  githubLink: document.querySelector("#githubLink"),
-  publicLink: document.querySelector("#publicLink"),
-  submitText: document.querySelector("#submitText"),
-  copySubmitBtn: document.querySelector("#copySubmitBtn"),
 };
 
 const numberKeys = ["attendance", "homework", "checkin", "activity", "pbl", "total"];
@@ -37,6 +41,40 @@ const componentLabels = [
   ["activity", "互动"],
   ["pbl", "PBL"],
 ];
+
+function renderAuth() {
+  els.loginScreen.classList.toggle("is-hidden", state.isAuthenticated);
+  els.appShell.classList.toggle("is-locked", !state.isAuthenticated);
+  if (!state.isAuthenticated) {
+    setTimeout(() => els.username.focus(), 0);
+  }
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+  const username = els.username.value.trim();
+  const password = els.password.value;
+  if (username === "admin" && password === "123456") {
+    state.isAuthenticated = true;
+    localStorage.setItem("grade-system-auth", "true");
+    els.loginError.textContent = "";
+    els.password.value = "";
+    renderAuth();
+    render();
+    return;
+  }
+  els.loginError.textContent = "账号或密码错误";
+  els.password.select();
+}
+
+function logout() {
+  state.isAuthenticated = false;
+  localStorage.removeItem("grade-system-auth");
+  renderAuth();
+}
 
 function toNumber(value) {
   const num = Number(value);
@@ -105,7 +143,6 @@ function render() {
   renderMetrics();
   renderTable();
   renderCharts();
-  updateSubmitText();
   if (window.lucide) {
     lucide.createIcons();
   }
@@ -349,16 +386,6 @@ function exportCsv() {
   URL.revokeObjectURL(a.href);
 }
 
-function updateSubmitText() {
-  els.submitText.value = [
-    "综合项目：华商创新班成绩管理系统",
-    `GitHub 链接：${els.githubLink.value}`,
-    `公网访问链接：${els.publicLink.value}`,
-    "系统功能：Excel 导入、成绩统计、图表展示、学生成绩增删改查、CSV 导出。",
-    `当前数据：${state.students.length} 名学生，平均分 ${els.avg.textContent}，及格率 ${els.pass.textContent}。`,
-  ].join("\n");
-}
-
 document.querySelectorAll("th[data-sort]").forEach((th) => {
   th.addEventListener("click", () => {
     const key = th.dataset.sort;
@@ -390,19 +417,14 @@ els.form.addEventListener("submit", (event) => {
   event.preventDefault();
   saveStudent();
 });
+els.loginForm.addEventListener("submit", handleLogin);
+els.logoutBtn.addEventListener("click", logout);
 els.fileInput.addEventListener("change", handleFile);
 els.searchInput.addEventListener("input", render);
 els.addBtn.addEventListener("click", () => openStudentDialog());
 els.exportBtn.addEventListener("click", exportCsv);
 els.resetBtn.addEventListener("click", loadInitialData);
-els.githubLink.addEventListener("input", updateSubmitText);
-els.publicLink.addEventListener("input", updateSubmitText);
-els.copySubmitBtn.addEventListener("click", async () => {
-  updateSubmitText();
-  await navigator.clipboard.writeText(els.submitText.value);
-  els.copySubmitBtn.querySelector("span").textContent = "已复制";
-  setTimeout(() => (els.copySubmitBtn.querySelector("span").textContent = "复制提交文字"), 1400);
-});
 window.addEventListener("resize", renderCharts);
 
+renderAuth();
 loadInitialData();
